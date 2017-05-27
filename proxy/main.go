@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "github.com/laylow/proxy/srv"
 
+func main() {
+	srv.Listen()
 }
