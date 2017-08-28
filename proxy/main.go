@@ -1,6 +1,6 @@
 package main
 
-import "github.com/laylow/proxy/srv"
+import "github.com/kubithorg/laylow/proxy/srv"
 
 func main() {
 	srv.Listen()

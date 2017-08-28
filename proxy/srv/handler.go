@@ -18,10 +18,12 @@ type JoinRequest struct {
 func hasJoined() httprouter.Handle {
 	client := http.Client{}
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		query := r.URL.Query()
+		fmt.Println(query)
 		url := fmt.Sprintf("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%v&serverId=%v&ip=%v",
-			params.ByName("username"),
-			params.ByName("serverId"),
-			params.ByName("ip"))
+			query.Get("username"),
+			query.Get("serverId"),
+			query.Get("ip"))
 		req, _ := http.NewRequest(http.MethodGet, url, nil)
 		req.Header.Set("Content-Type", "application/json")
 		response, _ := client.Do(req)
@@ -29,31 +31,4 @@ func hasJoined() httprouter.Handle {
 		read, _ := ioutil.ReadAll(response.Body)
 		w.Write(read)
 	})
-}
-
-func join() httprouter.Handle {
-	client := http.Client{}
-	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		if content, ok := readOrFail(w, r.Body); ok {
-			req, _ := http.NewRequest(http.MethodPost, "https://sessionserver.mojang.com/session/minecraft/join", nil)
-			req.Header.Set("Content-Type", "application/json")
-			response, _ := client.Do(req)
-			defer response.Body.Close()
-			content, _ := ioutil.ReadAll(response.Body)
-			w.Write(content)
-		}
-	})
-}
-
-// readOrFail reads the body and if an error has been encountered, it writes the error to the http
-// ResponseWriter and returns and an uninitialized array and false; otherwise, returns the body and
-// true.
-func readOrFail(w http.ResponseWriter, body io.ReadCloser) ([]byte, bool) {
-	var ret []byte
-	if ret, err := ioutil.ReadAll(body); err != nil {
-		log.Printf("Could not ready body: %v", err)
-		http.Error(w, "cannot read body", http.StatusBadRequest)
-		return ret, false
-	}
-	return ret, true
 }
