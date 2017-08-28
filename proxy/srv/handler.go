@@ -3,9 +3,7 @@ package srv
 import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
-	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
