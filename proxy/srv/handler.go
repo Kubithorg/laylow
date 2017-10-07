@@ -17,11 +17,25 @@ func hasJoined() httprouter.Handle {
 	client := http.Client{}
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		query := r.URL.Query()
-		fmt.Println(query)
 		url := fmt.Sprintf("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%v&serverId=%v&ip=%v",
 			query.Get("username"),
 			query.Get("serverId"),
 			query.Get("ip"))
+		req, _ := http.NewRequest(http.MethodGet, url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response, _ := client.Do(req)
+		defer response.Body.Close()
+		read, _ := ioutil.ReadAll(response.Body)
+		w.Write(read)
+	})
+}
+
+func accountInfo() httprouter.Handle {
+	client := http.Client{}
+	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		query := r.URL.Query()
+		// always 0 timestamp
+		url := "https://api.mojang.com/users/profiles/minecraft/" + query.Get("username")
 		req, _ := http.NewRequest(http.MethodGet, url, nil)
 		req.Header.Set("Content-Type", "application/json")
 		response, _ := client.Do(req)
